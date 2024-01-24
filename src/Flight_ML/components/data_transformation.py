@@ -67,6 +67,9 @@ class DataTransformation:
 
             data['Destination'] = data['Destination'].str.replace("New Delhi", "Delhi")
 
+            # droping trujet airline
+            data['Airline'] = data['Airline'].replace('Trujet',np.nan)
+
             # Converting 'Date_of_Journey' column to datetime format if not already
             data['Date_of_Journey'] = pd.to_datetime(data['Date_of_Journey'])
 
@@ -152,7 +155,7 @@ class DataTransformation:
 
             logging.info("Applying Preprocessing on training and test dataframe")
 
-            target_feature_train_df = target_feature_train_df.iloc[:8545]
+            target_feature_train_df = target_feature_train_df.iloc[:8544]
 
             input_feature_train_arr=preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
@@ -161,6 +164,8 @@ class DataTransformation:
 
             # As after excecution we got an error that both train array have different rows so adjusting the target_feature_train_df
             
+            logging.info(f"columns names of X_train:{list(input_feature_train_arr)}")
+            logging.info(f"columns names of X_test:{list(input_feature_test_arr)}")
 
             train_arr = np.c_[
                 input_feature_train_arr,np.array(target_feature_train_df)
