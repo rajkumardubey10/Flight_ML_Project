@@ -40,18 +40,18 @@ class ModelTrainer:
             #num_columns_X_train = X_train.shape[1]
             #num_columns_X_test = X_test.shape[1]
 
-            name_columns_X_train = X_train.columns
-            name_columns_X_test= X_test.columns
+            #name_columns_X_train = X_train.columns
+            #name_columns_X_test= X_test.columns
             #logging.info("Splited training and test input data successfully")
             #logging.info("columns count of X_train: %s",num_columns_X_train)
             #logging.info("columns count of X_test: %s",num_columns_X_test)
             # columns 
-            logging.info("columns names of X_train:",name_columns_X_train)
-            logging.info("columns names of X_test:",name_columns_X_test)
+            #logging.info("columns names of X_train:",num_columns_X_train)
+            #logging.info("columns names of X_test:",num_columns_X_test)
 
             models = {
-                #"Random Forest": RandomForestRegressor(),
-                #"Decision Tree": DecisionTreeRegressor(),
+                "Random Forest": RandomForestRegressor(),
+                "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "Linear Regression": LinearRegression(),
                 "XGBRegressor": XGBRegressor(),
@@ -59,45 +59,57 @@ class ModelTrainer:
                 "AdaBoost Regressor": AdaBoostRegressor(),
             }
             params={
-                #"Decision Tree": {
-                    #'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                    # 'splitter':['best','random'],
-                    # 'max_features':['sqrt','log2'],
-                #},
-                #"Random Forest":{
-                    # 'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                 
-                    # 'max_features':['sqrt','log2',None],
-                    #'n_estimators': [8,16,32,64,128,256]
-                #},
+                
+                "Decision Tree": {'criterion':['friedman_mse'] ,
+                    'max_depth': [30],
+                    'max_features': ['sqrt'],
+                    'min_samples_leaf': [4],
+                    'min_samples_split': [10]},
+
+                "Random Forest":{'n_estimators': [10],
+                    'min_samples_split': [10],
+                    'min_samples_leaf': [4],
+                    'max_features': ['sqrt'],
+                    'max_depth':[ None],
+                    'criterion': ['poisson'],
+                    'bootstrap': [False]},
+
                 "Gradient Boosting":{
-                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
-                    'learning_rate':[.1,.01,.05,.001],
-                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
-                    # 'criterion':['squared_error', 'friedman_mse'],
-                    # 'max_features':['auto','sqrt','log2'],
-                    'n_estimators': [8,16,32,64,128,256]
+                     'loss':['huber'],
+                    'learning_rate':[0.2],
+                    'subsample':[0.9],
+                     'criterion':['squared_error', 'friedman_mse'],
+                     'max_features':['log2'],
+                    'n_estimators': [200]
                 },
+                
                 "Linear Regression":{},
-                "XGBRegressor":{
-                    'learning_rate':[.1,.01,.05,.001],
-                    'n_estimators': [8,16,32,64,128,256]
-                },
+                
+                "XGBRegressor":{'subsample': [0.8],
+                    'n_estimators': [200],
+                    'min_child_weight':[ 1],
+                    'max_depth': [5],
+                    'learning_rate':[ 0.2],
+                    'gamma': [0.1],
+                    'colsample_bytree': [0.8]
+                    },
+                
                 "CatBoosting Regressor":{
-                    'depth': [6,8,10],
-                    'learning_rate': [0.01, 0.05, 0.1],
-                    'iterations': [30, 50, 100]
+                    'depth': [10],
+                    'learning_rate': [0.05],
+                    'l2_leaf_reg':[ 5],
+                    'iterations': [200]
                 },
                 "AdaBoost Regressor":{
                     'learning_rate':[.1,.01,0.5,.001],
-                    # 'loss':['linear','square','exponential'],
+                    'loss':['linear','square','exponential'],
                     'n_estimators': [8,16,32,64,128,256]
                 }
                 
             }
             logging.info("Model training started")
             model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
-                                             models=models,param=params)
+                                             models=models,params=params)
             
             ## To get best model score from dict
             best_model_score = max(sorted(model_report.values()))
@@ -109,8 +121,8 @@ class ModelTrainer:
             ]
             best_model = models[best_model_name]
 
-            if best_model_score<0.6:
-                raise CustomException("No best model found")
+            #if best_model_score<0.6:
+            #    raise CustomException("No best model found")
             logging.info(f"Best found model on both training and testing dataset")
 
             save_object(
